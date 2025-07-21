@@ -3,5 +3,19 @@ import Contact from "../models/contact.model";
 
 export const identifyContact = async (req: Request, res: Response) => {
   try {
-  } catch (error) {}
+    let { email, phoneNumber } = req.body;
+    // Coverting phoneNumber to string if it's number
+    if (
+      phoneNumber !== undefined &&
+      phoneNumber !== null &&
+      typeof phoneNumber === "number"
+    ) {
+      phoneNumber = phoneNumber.toString();
+    }
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
 };
