@@ -27,6 +27,24 @@ export const identifyContact = async (req: Request, res: Response) => {
     if (email) whereClause[Op.or].push({ email });
     if (phoneNumber) whereClause[Op.or].push({ phoneNumber });
     const matchingContacts = await Contact.findAll({ where: whereClause });
+
+    // if no matching, create new primary contact
+    if (matchingContacts.length === 0) {
+      const newContact = await Contact.create({
+        email: email || null,
+        phoneNumber: phoneNumber || null,
+        linkedId: null,
+        linkPrecedence: "primary",
+      });
+      return res.status(201).json({
+        contact: {
+          primaryContatctId: newContact.id,
+          emails: newContact.email ? [newContact.email] : [],
+          phoneNumbers: newContact.phoneNumber ? [newContact.phoneNumber] : [],
+          secondaryContactIds: [],
+        },
+      });
+    }
   } catch (error) {
     console.error(error);
     return res
