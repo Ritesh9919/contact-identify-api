@@ -45,6 +45,23 @@ export const identifyContact = async (req: Request, res: Response) => {
         },
       });
     }
+
+    // Find all primary contacts in the matching group
+    const primaryContacts = new Set<number>();
+    for (const contact of matchingContacts) {
+      let currentContact: Contact = contact;
+      while (
+        currentContact.linkPrecedence === "secondary" &&
+        currentContact.linkedId !== null
+      ) {
+        const nextContact = await Contact.findByPk(currentContact.linkedId);
+        if (!nextContact) break;
+        currentContact = nextContact;
+      }
+      if (currentContact.linkPrecedence === "primary") {
+        primaryContacts.add(currentContact.id);
+      }
+    }
   } catch (error) {
     console.error(error);
     return res
