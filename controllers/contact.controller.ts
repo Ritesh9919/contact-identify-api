@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Contact from "../models/contact.model";
+import { Op } from "sequelize";
 
 export const identifyContact = async (req: Request, res: Response) => {
   try {
@@ -15,13 +16,17 @@ export const identifyContact = async (req: Request, res: Response) => {
 
     // Validating input
     if (!email || !phoneNumber) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "At least one of email or phoneNumber must be provided",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "At least one of email or phoneNumber must be provided",
+      });
     }
+
+    // Finding matching contacts
+    const whereClause: any = { [Op.or]: [] };
+    if (email) whereClause[Op.or].push({ email });
+    if (phoneNumber) whereClause[Op.or].push({ phoneNumber });
+    const matchingContacts = await Contact.findAll({ where: whereClause });
   } catch (error) {
     console.error(error);
     return res
