@@ -12,6 +12,16 @@ export const identifyContact = async (req: Request, res: Response) => {
     ) {
       phoneNumber = phoneNumber.toString();
     }
+
+    // Validating input
+    if (!email || !phoneNumber) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "At least one of email or phoneNumber must be provided",
+        });
+    }
   } catch (error) {
     console.error(error);
     return res
