@@ -62,6 +62,16 @@ export const identifyContact = async (req: Request, res: Response) => {
         primaryContacts.add(currentContact.id);
       }
     }
+
+    // Get all related contacts
+    const allRelatedContacts = await Contact.findAll({
+      where: {
+        [Op.or]: [
+          { id: Array.from(primaryContacts) },
+          { lindedId: Array.from(primaryContacts) },
+        ],
+      },
+    });
   } catch (error) {
     console.error(error);
     return res
